@@ -1,6 +1,6 @@
 from gi.repository import Gtk
 
-class ServiceGeneratorWindow(Gtk.Window):
+class AutomatedServiceCreationWindow(Gtk.Window):
     def __init__(self):
         Gtk.Window.__init__(self, title="Generate New Service")
         self.set_default_size(400, 300)  # Optional: You can set a default size for this window too
