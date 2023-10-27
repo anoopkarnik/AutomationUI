@@ -1,5 +1,5 @@
 from gi.repository import Gtk
-from services.automated_service_creation import run
+from services.automated_service_creation import create_service
 
 class AutomatedServiceCreationWindow(Gtk.Window):
     def __init__(self):
@@ -25,40 +25,46 @@ class AutomatedServiceCreationWindow(Gtk.Window):
         self.entry_service_name.set_placeholder_text("Enter service name")
         vbox.pack_start(self.entry_service_name, True, True, 0)
 
-        # CheckButton for Create Git
+        self.check_create_local = Gtk.CheckButton(label="Create Local Service?")
+        vbox.pack_start(self.check_create_local, True, True, 0)
+        self.entry_local_name = Gtk.Entry()
+        self.entry_local_name.set_placeholder_text("Enter local service name")
+
         self.check_create_git = Gtk.CheckButton(label="Create Git Repo?")
         vbox.pack_start(self.check_create_git, True, True, 0)
-
-        # Entry for Git Repo Name
         self.entry_git_name = Gtk.Entry()
         self.entry_git_name.set_placeholder_text("Enter git repo name")
 
-        # Show/Hide Git Repo Name based on CheckButton
-        # self.entry_git_name.set_visible(False)
-        # self.check_create_git.connect("toggled", self.on_git_toggled)
+        self.check_create_ecr = Gtk.CheckButton(label="Create Ecr Repo?")
+        vbox.pack_start(self.check_create_ecr, True, True, 0)
+        self.entry_ecr_name = Gtk.Entry()
+        self.entry_ecr_name.set_placeholder_text("Enter ecr repo name")
+
 
         self.button_submit = Gtk.Button(label="Submit")
         self.button_submit.connect("clicked", self.on_submit_clicked)
         vbox.pack_start(self.button_submit, True, True, 0)
 
-    # def on_git_toggled(self, widget):
-    #     self.vbox.remove(self.button_submit)
-    #     if widget.get_active():
-    #         self.vbox.pack_start(self.entry_git_name, True, True, 0)
-    #         self.entry_git_name.show()
-    #     else:
-    #         self.vbox.remove(self.entry_git_name)
-    #     self.vbox.pack_start(self.button_submit, True, True, 0)
-    #     self.button_submit.show()
-
     def on_submit_clicked(self, widget):
-        # Here, you can call your service to make the POST request with these parameters.
-        print("Service Type:", self.combo_service_type.get_active_text())
-        print("Folder Path:", self.entry_location.get_filename())
-        print("Service Name:", self.entry_service_name.get_text())
-        print("Create Git Repo:", self.check_create_git.get_active())
-        run(self.combo_service_type.get_active_text(),self.entry_location.get_filename(),
-        self.entry_service_name.get_text(),self.check_create_git.get_active())
-
-        # if self.check_create_git.get_active():
-        #     print("Git Repo Name:", self.entry_git_name.get_text())
+        try:
+            print("Service Type:", self.combo_service_type.get_active_text())
+            print("Service Name:", self.entry_service_name.get_text())
+            print("Folder Path:", self.entry_location.get_filename())
+            print("Create Local Repo:", self.check_create_local.get_active())
+            print("Create Git Repo:", self.check_create_git.get_active())
+            print("Create Ecr Repo:", self.check_create_ecr.get_active())
+            create_service(self.combo_service_type.get_active_text(),self.entry_location.get_filename(),
+            self.entry_service_name.get_text(),self.check_create_local.get_active(),
+            self.check_create_git.get_active(),self.check_create_ecr.get_active())
+            self.destroy()
+        except Exception as e:
+            dialog = Gtk.MessageDialog(
+                transient_for=self,
+                flags=0,
+                message_type=Gtk.MessageType.ERROR,
+                buttons=Gtk.ButtonsType.CANCEL,
+                text="Error",
+                )
+            dialog.format_secondary_text(str(e))
+            dialog.run()
+            dialog.destroy()
